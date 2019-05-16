@@ -38,14 +38,39 @@ class GUI(tk.Frame):
 
         # Fetch entered values (strip any leading / tralue whitespace characters)
         if config.enablePPNLookup:
-            catid = self.catid_entry.get().strip()
-            self.catidOld = catid
+            fieldName = "catid"
+            value = self.catid_entry.get().strip()
+            self.catidOld = value
         else:
-            title = self.title_entry.get().strip()
-            self.titleOld = title
+            fieldName = "title"
+            value = self.title_entry.get().strip()
+            self.titleOld = value
 
         # Send value TODO add code here ..
-        # ....
+        myClient = client()
+        request = myClient.create_request(fieldName, value)
+        myClient.start_connection(config.socketHost, int(config.socketPort), request)
+
+        try:
+            while True:
+                events = myClient.sel.select(timeout=1)
+                for key, mask in events:
+                    message = key.data
+                    try:
+                        message.process_events(mask)
+                    except Exception:
+                        print(
+                            "main: error: exception for",
+                            f"{message.addr}:\n{traceback.format_exc()}",
+                        )
+                        message.close()
+                # Check for a socket being monitored to continue.
+                if not myClient.sel.get_map():
+                    break
+        except KeyboardInterrupt:
+            print("caught keyboard interrupt, exiting")
+        finally:
+            myClient.sel.close()
 
         # Reset entry fields and set focus on PPN / Title field
         if config.enablePPNLookup:
