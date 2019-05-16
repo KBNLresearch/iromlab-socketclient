@@ -69,13 +69,13 @@ class GUI(tk.Frame):
         if config.enablePPNLookup:
             # Catalog ID (PPN)
             tk.Label(self, text='PPN').grid(column=0, row=3, sticky='w')
-            self.catid_entry = tk.Entry(self, width=20, state='disabled')
+            self.catid_entry = tk.Entry(self, width=20, state='normal')
 
             self.catid_entry.grid(column=1, row=3, sticky='w')
         else:
             # PPN lookup disabled, so present Title entry field
             tk.Label(self, text='Title').grid(column=0, row=3, sticky='w')
-            self.title_entry = tk.Entry(self, width=45, state='disabled')
+            self.title_entry = tk.Entry(self, width=45, state='normal')
             self.title_entry.grid(column=1, row=3, sticky='w', columnspan=3)
 
         self.submit_button = tk.Button(self,
@@ -83,7 +83,7 @@ class GUI(tk.Frame):
                                        height=2,
                                        width=4,
                                        underline=0,
-                                       state='disabled',
+                                       state='normal',
                                        command=self.on_submit)
         self.submit_button.grid(column=1, row=6, sticky='ew')
 
