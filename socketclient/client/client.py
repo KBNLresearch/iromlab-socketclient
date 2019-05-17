@@ -4,6 +4,7 @@ import sys
 import socket
 import selectors
 import traceback
+import time
 
 from . import libclient
 
@@ -41,6 +42,32 @@ class client():
         events = selectors.EVENT_READ | selectors.EVENT_WRITE
         message = libclient.Message(self.sel, sock, addr, request)
         self.sel.register(sock, events, data=message)
+    
+    def send_request(self, host, port, fieldName, value):
+        request = self.create_request(fieldName, value)
+        self.start_connection(host, port, request)
+
+        try:
+            while True:
+                events = self.sel.select(timeout=1)
+                for key, mask in events:
+                    message = key.data
+                    try:
+                        message.process_events(mask)
+                    except Exception:
+                        print(
+                            "main: error: exception for",
+                            f"{message.addr}:\n{traceback.format_exc()}",
+                        )
+                        message.close()
+                # Check for a socket being monitored to continue.
+                if not self.sel.get_map():
+                    break
+        except KeyboardInterrupt:
+            print("caught keyboard interrupt, exiting")
+        finally:
+            self.sel.close()
+
 
 def main():
 
@@ -50,30 +77,35 @@ def main():
 
     host, port = sys.argv[1], int(sys.argv[2])
     fieldName, value = sys.argv[3], sys.argv[4]
-    myClient = client()
-    request = myClient.create_request(fieldName, value)
-    myClient.start_connection(host, port, request)
-
-    try:
-        while True:
-            events = myClient.sel.select(timeout=1)
-            for key, mask in events:
-                message = key.data
-                try:
-                    message.process_events(mask)
-                except Exception:
-                    print(
-                        "main: error: exception for",
-                        f"{message.addr}:\n{traceback.format_exc()}",
-                    )
-                    message.close()
-            # Check for a socket being monitored to continue.
-            if not myClient.sel.get_map():
-                break
-    except KeyboardInterrupt:
-        print("caught keyboard interrupt, exiting")
-    finally:
-        myClient.sel.close()
+    PPNs = ['18594650X',
+            '230370241',
+            '216562856 ',
+            'aap',
+            'noot',
+            'mies',
+            'piet',
+            'japie',
+            '',
+            '376144572'
+            '',
+            '',
+            '37750159X',
+                        '230370241',
+            '216562856 ',
+            'aap',
+            'noot',
+            'mies',
+            'piet',
+            'japie',
+            '',
+            '376144572'
+            '',
+            '']
+    for PPN in PPNs:
+        value = PPN
+        myClient = client()
+        myClient.send_request(host, port, fieldName, value)
+        time.sleep(1)
 
 if __name__ == "__main__":
     main()

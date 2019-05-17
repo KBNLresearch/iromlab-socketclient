@@ -40,37 +40,34 @@ class GUI(tk.Frame):
         if config.enablePPNLookup:
             fieldName = "catid"
             value = self.catid_entry.get().strip()
-            self.catidOld = value
         else:
             fieldName = "title"
             value = self.title_entry.get().strip()
-            self.titleOld = value
 
         # Send value TODO add code here ..
         myClient = client()
-        request = myClient.create_request(fieldName, value)
-        myClient.start_connection(config.socketHost, int(config.socketPort), request)
+        myClient.send_request(config.socketHost, int(config.socketPort), fieldName, value)
 
-        try:
-            while True:
-                events = myClient.sel.select(timeout=1)
-                for key, mask in events:
-                    message = key.data
-                    try:
-                        message.process_events(mask)
-                    except Exception:
-                        print(
-                            "main: error: exception for",
-                            f"{message.addr}:\n{traceback.format_exc()}",
-                        )
-                        message.close()
-                # Check for a socket being monitored to continue.
-                if not myClient.sel.get_map():
-                    break
-        except KeyboardInterrupt:
-            print("caught keyboard interrupt, exiting")
-        finally:
-            myClient.sel.close()
+        ## TEST
+        PPNs = ['18594650X',
+                '230370241',
+                '216562856 ',
+                'aap',
+                'noot',
+                'mies',
+                'piet',
+                'japie',
+                '',
+                '376144572'
+                '',
+                '',
+                '37750159X']
+        for PPN in PPNs:
+            value = PPN
+            myClient = client()
+            myClient.send_request(config.socketHost, int(config.socketPort), fieldName, value)
+            time.sleep(1)
+        ## TEST
 
         # Reset entry fields and set focus on PPN / Title field
         if config.enablePPNLookup:
