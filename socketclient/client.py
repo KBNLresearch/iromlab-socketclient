@@ -1,5 +1,6 @@
 import socket
 import time
+import uuid
 
 """
 Simple socket communication client
@@ -41,33 +42,8 @@ def main():
     socketHost = '127.0.0.1'
     socketPort = '65432'
 
-    PPNs = ['18594650X',
-            'Sluwe Sjaantje sloeg de slome slager',
-            '230370241',
-            '216562856 ',
-            'aap',
-            'noot',
-            'mies',
-            'piet',
-            'japie',
-            '',
-            '376144572'
-            '',
-            '',
-            '37750159X',
-                        '230370241',
-            '216562856 ',
-            'aap',
-            'noot',
-            'mies',
-            'piet',
-            'japie',
-            '',
-            '376144572'
-            '',
-            '']
-
-    for PPN in PPNs:
+    for i in range(50):
+        PPN = str(uuid.uuid1())
         messageBytes = PPN.encode('utf-8')
         myClient = client()
         myClient.sendMessage(socketHost, socketPort, messageBytes)
