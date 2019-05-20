@@ -14,7 +14,7 @@ import queue
 import tkinter as tk
 from tkinter import ttk
 from . import config
-from .client import client
+from . import client
 
 
 class GUI(tk.Frame):
@@ -32,42 +32,22 @@ class GUI(tk.Frame):
     def on_quit(self, event=None):
         os._exit(0)
 
-
     def on_submit(self, event=None):
         """Process one record and add it to the queue after user pressed submit button"""
 
         # Fetch entered values (strip any leading / tralue whitespace characters)
         if config.enablePPNLookup:
-            fieldName = "catid"
             value = self.catid_entry.get().strip()
         else:
-            fieldName = "title"
             value = self.title_entry.get().strip()
+        
+        # Encode entered value to bytes
+        # TODO: may need exception handler for encode errors
+        messageBytes = value.encode('utf-8')
 
-        # Send value TODO add code here ..
-        myClient = client()
-        myClient.send_request(config.socketHost, int(config.socketPort), fieldName, value)
-
-        ## TEST
-        PPNs = ['18594650X',
-                '230370241',
-                '216562856 ',
-                'aap',
-                'noot',
-                'mies',
-                'piet',
-                'japie',
-                '',
-                '376144572'
-                '',
-                '',
-                '37750159X']
-        for PPN in PPNs:
-            value = PPN
-            myClient = client()
-            myClient.send_request(config.socketHost, int(config.socketPort), fieldName, value)
-            time.sleep(1)
-        ## TEST
+        # Send message
+        myClient = client.client()
+        myClient.sendMessage(config.socketHost, config.socketPort, messageBytes)
 
         # Reset entry fields and set focus on PPN / Title field
         if config.enablePPNLookup:
