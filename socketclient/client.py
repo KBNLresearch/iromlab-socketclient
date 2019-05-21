@@ -1,6 +1,5 @@
+import sys
 import socket
-import time
-import uuid
 
 """
 Simple socket communication client
@@ -39,15 +38,18 @@ class client():
                 sock.close()
 
 def main():
-    socketHost = '127.0.0.1'
-    socketPort = '65432'
 
-    for i in range(50):
-        PPN = str(uuid.uuid1())
-        messageBytes = PPN.encode('utf-8')
+    if len(sys.argv) != 4:
+        sys.stderr.write("USAGE: python cli-launch.py <host> <port> <message>\n")
+        sys.exit()
+    else:
+        socketHost = sys.argv[1]
+        socketPort = sys.argv[2]
+        message = sys.argv[3]
+
+        messageBytes = message.encode('utf-8')
         myClient = client()
         myClient.sendMessage(socketHost, socketPort, messageBytes)
-        time.sleep(1)
 
 if __name__ == "__main__":
     main()
