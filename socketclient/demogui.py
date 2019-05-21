@@ -13,9 +13,8 @@ import threading
 import queue
 import tkinter as tk
 from tkinter import ttk
-from . import config
 from . import client
-
+from . import config
 
 class GUI(tk.Frame):
 
@@ -36,10 +35,7 @@ class GUI(tk.Frame):
         """Process one record and add it to the queue after user pressed submit button"""
 
         # Fetch entered values (strip any leading / tralue whitespace characters)
-        if config.enablePPNLookup:
-            value = self.catid_entry.get().strip()
-        else:
-            value = self.title_entry.get().strip()
+        value = self.catid_entry.get().strip()
         
         # Encode entered value to bytes
         # TODO: may need exception handler for encode errors
@@ -50,36 +46,24 @@ class GUI(tk.Frame):
         myClient.sendMessage(config.socketHost, config.socketPort, messageBytes)
 
         # Reset entry fields and set focus on PPN / Title field
-        if config.enablePPNLookup:
-            self.catid_entry.delete(0, tk.END)
-            self.catid_entry.focus_set()
-        else:
-            self.title_entry.delete(0, tk.END)
-            self.title_entry.focus_set()
+        self.catid_entry.delete(0, tk.END)
+        self.catid_entry.focus_set()
 
     def build_gui(self):
         """Build the GUI"""
                 
-        self.root.title('socket demo')
+        self.root.title('Socket client demo')
         self.root.option_add('*tearOff', 'FALSE')
         self.grid(column=0, row=0, sticky='ew')
         self.grid_columnconfigure(0, weight=1, uniform='a')
-        self.grid_columnconfigure(1, weight=1, uniform='a')
-        self.grid_columnconfigure(2, weight=1, uniform='a')
-        self.grid_columnconfigure(3, weight=1, uniform='a')
+        self.grid_columnconfigure(1, weight=3, uniform='a')
 
-        if config.enablePPNLookup:
-            # Catalog ID (PPN)
-            tk.Label(self, text='PPN').grid(column=0, row=3, sticky='w')
-            self.catid_entry = tk.Entry(self, width=20, state='normal')
+        # Catalog ID (PPN) or title
+        tk.Label(self, text='PPN (or title)').grid(column=0, row=3, sticky='w')
+        self.catid_entry = tk.Entry(self, width=60, state='normal')
+        self.catid_entry.grid(column=1, row=3, sticky='w')
 
-            self.catid_entry.grid(column=1, row=3, sticky='w')
-        else:
-            # PPN lookup disabled, so present Title entry field
-            tk.Label(self, text='Title').grid(column=0, row=3, sticky='w')
-            self.title_entry = tk.Entry(self, width=45, state='normal')
-            self.title_entry.grid(column=1, row=3, sticky='w', columnspan=3)
-
+        # Submit button
         self.submit_button = tk.Button(self,
                                        text='Submit',
                                        height=2,
@@ -96,7 +80,7 @@ def main():
     """Main function"""
     root = tk.Tk()
     myGUI = GUI(root)
-    # This ensures application quits normally if user closes window
+    # This ensures the application quits normally if user closes window
     root.protocol('WM_DELETE_WINDOW', myGUI.on_quit)
 
     while True:
